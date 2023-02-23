@@ -4,7 +4,7 @@ use expect_test::{expect, Expect};
 fn t() {
     assert!(wn::lmf::from_file("this-file-does-not-exist.xml").is_err());
 
-    let root = wn::lmf::from_file("tests/fixtures/wordnet.xml").unwrap();
+    let root = wn::lmf::from_file("tests/fixtures/wn-2022.xml").unwrap();
 
     assert_eq!(root.lexicons.len(), 1);
 
@@ -24,8 +24,8 @@ fn t() {
         "https://github.com/globalwordnet/english-wordnet"
     );
 
-    assert_eq!(lexicon.lexical_entries.len(), 163161);
-    assert_eq!(lexicon.synsets.len(), 120039);
+    assert_eq!(lexicon.lexical_entries.len(), 161221);
+    assert_eq!(lexicon.synsets.len(), 120068);
 
     fn check<T: std::fmt::Debug>(t: T, expect: Expect) {
         expect.assert_debug_eq(&t)
@@ -499,15 +499,15 @@ fn t() {
                     relations: [
                         SynsetRelation {
                             rel_type: Hyponym,
+                            target: "oewn-04431553-n",
+                        },
+                        SynsetRelation {
+                            rel_type: Hyponym,
                             target: "oewn-00001930-n",
                         },
                         SynsetRelation {
                             rel_type: Hyponym,
                             target: "oewn-00002137-n",
-                        },
-                        SynsetRelation {
-                            rel_type: Hyponym,
-                            target: "oewn-04431553-n",
                         },
                     ],
                 },
