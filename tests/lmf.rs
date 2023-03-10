@@ -306,9 +306,7 @@ fn t() {
                         part_of_speech: Adjective,
                         pronunciations: [
                             Pronunciation {
-                                variety: Some(
-                                    "GB",
-                                ),
+                                variety: None,
                                 notation: None,
                                 phonemic: true,
                                 audio: None,
@@ -414,18 +412,14 @@ fn t() {
                         part_of_speech: Noun,
                         pronunciations: [
                             Pronunciation {
-                                variety: Some(
-                                    "GB",
-                                ),
+                                variety: None,
                                 notation: None,
                                 phonemic: true,
                                 audio: None,
                                 value: "ˈɑːdˌwʊlf",
                             },
                             Pronunciation {
-                                variety: Some(
-                                    "US",
-                                ),
+                                variety: None,
                                 notation: None,
                                 phonemic: true,
                                 audio: None,
