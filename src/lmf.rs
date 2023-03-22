@@ -2,21 +2,32 @@ pub type BoxStr = Box<str>;
 
 pub type BoxSlice<T> = Box<[T]>;
 
-#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Root {
     #[serde(rename = "Lexicon")]
     pub lexicons: BoxSlice<Lexicon>,
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Lexicon {
+    #[serde(rename = "@id")]
     pub id: BoxStr,
+    #[serde(rename = "@label")]
     pub label: BoxStr,
+    #[serde(rename = "@language")]
     pub language: BoxStr,
+    #[serde(rename = "@email")]
     pub email: BoxStr,
+    #[serde(rename = "@license")]
     pub license: BoxStr,
+    #[serde(rename = "@version")]
     pub version: BoxStr,
-    pub url: BoxStr,
+    #[serde(rename = "@url")]
+    pub url: Option<BoxStr>,
+    #[serde(rename = "@citation")]
+    pub citation: Option<BoxStr>,
+    pub status: Option<BoxStr>,
+    pub note: Option<BoxStr>,
     #[serde(rename = "LexicalEntry")]
     pub lexical_entries: BoxSlice<LexicalEntry>,
     #[serde(rename = "Synset")]
@@ -25,8 +36,9 @@ pub struct Lexicon {
     pub syntactic_behaviours: BoxSlice<SyntacticBehaviour>,
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct LexicalEntry {
+    #[serde(rename = "@id")]
     pub id: BoxStr,
     pub status: Option<BoxStr>,
     pub note: Option<BoxStr>,
@@ -40,23 +52,33 @@ pub struct LexicalEntry {
     pub syntactic_behaviours: BoxSlice<SyntacticBehaviour>,
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Lemma {
-    #[serde(rename = "writtenForm")]
+    #[serde(rename = "@writtenForm")]
     pub written_form: BoxStr,
-    #[serde(rename = "partOfSpeech")]
+    pub script: Option<BoxStr>,
+    #[serde(rename = "@partOfSpeech")]
     pub part_of_speech: PartOfSpeech,
     #[serde(rename = "Pronunciation", default)]
     pub pronunciations: BoxSlice<Pronunciation>,
+    #[serde(rename = "Tag", default)]
+    pub tags: BoxSlice<Tag>,
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Form {
-    #[serde(rename = "writtenForm")]
+    #[serde(rename = "@id")]
+    pub id: Option<BoxStr>,
+    #[serde(rename = "@writtenForm")]
     pub written_form: BoxStr,
+    pub script: Option<BoxStr>,
+    #[serde(rename = "Pronunciation", default)]
+    pub pronunciations: BoxSlice<Pronunciation>,
+    #[serde(rename = "Tag", default)]
+    pub tags: BoxSlice<Tag>,
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub enum PartOfSpeech {
     #[serde(rename = "a")]
     Adjective,
@@ -78,34 +100,63 @@ pub enum PartOfSpeech {
     Unknown,
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+fn default_phonemic() -> bool { true }
+
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Pronunciation {
     pub variety: Option<BoxStr>,
     pub notation: Option<BoxStr>,
+    #[serde(default="default_phonemic")]
+    pub phonemic: bool,
     pub audio: Option<BoxStr>,
     #[serde(rename = "$value")]
     pub value: BoxStr,
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
+pub struct Tag {
+    pub category: BoxStr,
+    #[serde(rename = "$value")]
+    pub value: BoxStr,
+}
+
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Sense {
+    #[serde(rename = "@id")]
     pub id: BoxStr,
-    #[serde(rename = "synset")]
+    #[serde(rename = "@synset")]
     pub synset_id: BoxStr,
+    pub status: Option<BoxStr>,
+    pub note: Option<BoxStr>,
+    // #[serde(rename = "subcat", default)]
+    // pub subcat_ids: BoxSlice<BoxStr>,
     #[serde(rename = "SenseRelation", default)]
     pub sense_relations: BoxSlice<SenseRelation>,
     #[serde(rename = "Example", default)]
-    pub examples: BoxSlice<BoxStr>,
+    pub examples: BoxSlice<Example>,
+    #[serde(rename = "Count", default)]
+    pub counts: BoxSlice<Count>,
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct SenseRelation {
-    #[serde(rename = "relType")]
+    #[serde(rename = "@relType")]
     pub rel_type: SenseRelationType,
-    pub target: BoxStr,
+    #[serde(rename = "@target")]
+    pub target_id: BoxStr,
+    pub status: Option<BoxStr>,
+    pub note: Option<BoxStr>,
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
+pub struct Count {
+    pub status: Option<BoxStr>,
+    pub note: Option<BoxStr>,
+    #[serde(rename = "$value")]
+    pub value: BoxStr,
+}
+
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SenseRelationType {
     Also,
@@ -141,29 +192,62 @@ pub enum SenseRelationType {
     AntoConverse,
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Synset {
+    #[serde(rename = "@id")]
     pub id: BoxStr,
-    #[serde(rename = "partOfSpeech")]
+    #[serde(rename = "@partOfSpeech")]
     pub part_of_speech: PartOfSpeech,
+    pub status: Option<BoxStr>,
+    pub note: Option<BoxStr>,
+    // #[serde(rename = "members", default)]
+    // pub member_ids: BoxSlice<BoxStr>,
     #[serde(rename = "Definition")]
-    pub definitions: BoxSlice<BoxStr>,
+    pub definitions: BoxSlice<Definition>,
     #[serde(rename = "ILIDefinition")]
-    pub ili_definition: Option<BoxStr>,
-    #[serde(rename = "Example", default)]
-    pub examples: BoxSlice<BoxStr>,
+    pub ili_definition: Option<IliDefinition>,
     #[serde(rename = "SynsetRelation", default)]
     pub relations: BoxSlice<SynsetRelation>,
+    #[serde(rename = "Example", default)]
+    pub examples: BoxSlice<Example>,
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
+pub struct Definition {
+    pub status: Option<BoxStr>,
+    pub note: Option<BoxStr>,
+    #[serde(rename = "$value")]
+    pub value: BoxStr,
+}
+
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
+pub struct IliDefinition {
+    pub status: Option<BoxStr>,
+    pub note: Option<BoxStr>,
+    #[serde(rename = "$value")]
+    pub value: BoxStr,
+}
+
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
+pub struct Example {
+    pub status: Option<BoxStr>,
+    pub note: Option<BoxStr>,
+    #[serde(rename = "$value")]
+    pub value: BoxStr,
+}
+
+
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct SynsetRelation {
-    #[serde(rename = "relType")]
+    #[serde(rename = "@relType")]
     pub rel_type: SynsetRelationType,
-    pub target: BoxStr,
+    #[serde(rename = "@target")]
+    pub target_id: BoxStr,
+    pub status: Option<BoxStr>,
+    pub note: Option<BoxStr>,
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SynsetRelationType {
     Also,
@@ -254,12 +338,14 @@ pub enum SynsetRelationType {
     IrSynonym,
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct SyntacticBehaviour {
-    #[serde(rename = "subcategorizationFrame")]
+    #[serde(rename = "@id")]
+    pub id: Option<BoxStr>,
+    #[serde(rename = "@subcategorizationFrame")]
     pub subcategorization_frame: BoxStr,
-    #[serde(default)]
-    pub senses: BoxSlice<BoxStr>,
+    #[serde(rename = "senses", default)]
+    pub sense_ids: BoxSlice<BoxStr>,
 }
 
 #[derive(Debug, thiserror::Error)]
