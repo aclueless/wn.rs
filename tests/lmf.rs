@@ -31,8 +31,8 @@ fn t() {
         expect.assert_debug_eq(&t)
     }
 
-    lexicon.lexical_entries.sort_by(|a, b| a.id.cmp(&b.id));
-    lexicon.synsets.sort_by(|a, b| a.id.cmp(&b.id));
+    lexicon.lexical_entries.sort_by(|a, b| a.id.as_ref().cmp(b.id.as_ref()));
+    lexicon.synsets.sort_by(|a, b| a.id.as_ref().cmp(b.id.as_ref()));
 
     check(
         &lexicon.lexical_entries[..5],

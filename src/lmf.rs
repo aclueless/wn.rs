@@ -1,5 +1,26 @@
 pub type BoxStr = Box<str>;
 
+#[derive(Clone, Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+pub struct SenseId(BoxStr);
+#[derive(Clone, Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+pub struct LexicalEntryId(BoxStr);
+#[derive(Clone, Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+pub struct SynsetId(BoxStr);
+
+duplicate::duplicate! {
+    [
+        new_type;
+        [LexicalEntryId];
+        [SenseId];
+        [SynsetId];
+    ]
+    impl AsRef<Box<str>> for new_type {
+        fn as_ref(&self) -> &Box<str> {
+            &self.0
+        }
+    }
+}
+
 pub type BoxSlice<T> = Box<[T]>;
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
@@ -22,11 +43,15 @@ pub struct Lexicon {
     pub license: BoxStr,
     #[serde(rename = "@version")]
     pub version: BoxStr,
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "@url")]
     pub url: Option<BoxStr>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "@citation")]
     pub citation: Option<BoxStr>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<BoxStr>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub note: Option<BoxStr>,
     #[serde(rename = "LexicalEntry")]
     pub lexical_entries: BoxSlice<LexicalEntry>,
@@ -39,8 +64,10 @@ pub struct Lexicon {
 #[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct LexicalEntry {
     #[serde(rename = "@id")]
-    pub id: BoxStr,
+    pub id: LexicalEntryId,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<BoxStr>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub note: Option<BoxStr>,
     #[serde(rename = "Lemma")]
     pub lemma: Lemma,
@@ -56,6 +83,7 @@ pub struct LexicalEntry {
 pub struct Lemma {
     #[serde(rename = "@writtenForm")]
     pub written_form: BoxStr,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub script: Option<BoxStr>,
     #[serde(rename = "@partOfSpeech")]
     pub part_of_speech: PartOfSpeech,
@@ -67,10 +95,12 @@ pub struct Lemma {
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Form {
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "@id")]
     pub id: Option<BoxStr>,
     #[serde(rename = "@writtenForm")]
     pub written_form: BoxStr,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub script: Option<BoxStr>,
     #[serde(rename = "Pronunciation", default)]
     pub pronunciations: BoxSlice<Pronunciation>,
@@ -104,10 +134,13 @@ fn default_phonemic() -> bool { true }
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Pronunciation {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub variety: Option<BoxStr>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub notation: Option<BoxStr>,
     #[serde(default="default_phonemic")]
     pub phonemic: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub audio: Option<BoxStr>,
     #[serde(rename = "$value")]
     pub value: BoxStr,
@@ -123,10 +156,12 @@ pub struct Tag {
 #[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Sense {
     #[serde(rename = "@id")]
-    pub id: BoxStr,
+    pub id: SenseId,
     #[serde(rename = "@synset")]
-    pub synset_id: BoxStr,
+    pub synset_id: SynsetId,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<BoxStr>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub note: Option<BoxStr>,
     // #[serde(rename = "subcat", default)]
     // pub subcat_ids: BoxSlice<BoxStr>,
@@ -143,14 +178,18 @@ pub struct SenseRelation {
     #[serde(rename = "@relType")]
     pub rel_type: SenseRelationType,
     #[serde(rename = "@target")]
-    pub target_id: BoxStr,
+    pub target_id: SenseId,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<BoxStr>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub note: Option<BoxStr>,
 }
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Count {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<BoxStr>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub note: Option<BoxStr>,
     #[serde(rename = "$value")]
     pub value: BoxStr,
@@ -195,15 +234,18 @@ pub enum SenseRelationType {
 #[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Synset {
     #[serde(rename = "@id")]
-    pub id: BoxStr,
+    pub id: SynsetId,
     #[serde(rename = "@partOfSpeech")]
     pub part_of_speech: PartOfSpeech,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<BoxStr>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub note: Option<BoxStr>,
     // #[serde(rename = "members", default)]
-    // pub member_ids: BoxSlice<BoxStr>,
+    // pub member_ids: BoxStr,
     #[serde(rename = "Definition")]
     pub definitions: BoxSlice<Definition>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "ILIDefinition")]
     pub ili_definition: Option<IliDefinition>,
     #[serde(rename = "SynsetRelation", default)]
@@ -214,7 +256,9 @@ pub struct Synset {
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Definition {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<BoxStr>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub note: Option<BoxStr>,
     #[serde(rename = "$value")]
     pub value: BoxStr,
@@ -222,7 +266,9 @@ pub struct Definition {
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct IliDefinition {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<BoxStr>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub note: Option<BoxStr>,
     #[serde(rename = "$value")]
     pub value: BoxStr,
@@ -230,7 +276,9 @@ pub struct IliDefinition {
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Example {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<BoxStr>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub note: Option<BoxStr>,
     #[serde(rename = "$value")]
     pub value: BoxStr,
@@ -242,8 +290,10 @@ pub struct SynsetRelation {
     #[serde(rename = "@relType")]
     pub rel_type: SynsetRelationType,
     #[serde(rename = "@target")]
-    pub target_id: BoxStr,
+    pub target_id: SynsetId,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<BoxStr>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub note: Option<BoxStr>,
 }
 
@@ -340,6 +390,7 @@ pub enum SynsetRelationType {
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct SyntacticBehaviour {
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "@id")]
     pub id: Option<BoxStr>,
     #[serde(rename = "@subcategorizationFrame")]
@@ -367,4 +418,33 @@ pub fn from_str(str: &str) -> Result<Root, Error> {
 
 pub fn from_reader(reader: impl std::io::BufRead) -> Result<Root, Error> {
     Ok(quick_xml::de::from_reader(reader)?)
+}
+
+#[test]
+fn test_id_types() {
+    let le = LexicalEntry {
+        id: LexicalEntryId("lexical_entry-id".into()),
+        note: None,
+        status: None,
+        lemma: Lemma { written_form: "test".into(), script: None, part_of_speech: PartOfSpeech::Noun, pronunciations: [].into(), tags: [].into() },
+        forms: [].into(),
+        senses: [
+            Sense {
+                id: SenseId("sense-id".into()),
+                synset_id: SynsetId("synset-id".into()),
+                note: None,
+                status: None,
+                sense_relations: [].into(),
+                examples: [].into(),
+                counts: [].into(),
+            }
+        ].into(),
+        syntactic_behaviours: [].into(),
+    };
+
+    let s = quick_xml::se::to_string(&le).expect("lexical entry string");
+    let de_le: LexicalEntry = quick_xml::de::from_str(&s).expect("lexical entry instance");
+
+    assert_eq!("<LexicalEntry id=\"lexical_entry-id\"><Lemma writtenForm=\"test\" partOfSpeech=\"n\"/><Sense id=\"sense-id\" synset=\"synset-id\"/></LexicalEntry>", s);
+    assert_eq!(le, de_le);
 }
