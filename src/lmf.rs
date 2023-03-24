@@ -1,10 +1,10 @@
 pub type BoxStr = Box<str>;
 
-#[derive(Clone, Debug, Hash, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+#[derive(Clone, Debug, Hash, PartialOrd, Ord, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct SenseId(BoxStr);
-#[derive(Clone, Debug, Hash, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+#[derive(Clone, Debug, Hash, PartialOrd, Ord, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct LexicalEntryId(BoxStr);
-#[derive(Clone, Debug, Hash, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+#[derive(Clone, Debug, Hash, PartialOrd, Ord, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct SynsetId(BoxStr);
 
 duplicate::duplicate! {
@@ -418,6 +418,14 @@ pub fn from_str(str: &str) -> Result<Root, Error> {
 
 pub fn from_reader(reader: impl std::io::BufRead) -> Result<Root, Error> {
     Ok(quick_xml::de::from_reader(reader)?)
+}
+
+impl Root {
+    pub fn to_string(&self) -> Result<String, quick_xml::DeError> {
+        let mut s = String::new();
+        quick_xml::se::to_writer(&mut s, self)?;
+        Ok(s)
+    }
 }
 
 #[test]
