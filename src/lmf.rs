@@ -19,6 +19,11 @@ duplicate::duplicate! {
             &self.0
         }
     }
+    impl new_type {
+        pub fn into_inner(self) -> BoxStr {
+            self.0
+        }
+    }
 }
 
 pub type BoxSlice<T> = Box<[T]>;
